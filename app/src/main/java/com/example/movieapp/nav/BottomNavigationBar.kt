@@ -1,6 +1,7 @@
 package com.example.movieapp.nav
 
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -8,7 +9,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
@@ -19,8 +22,9 @@ fun BottomNavigationBar(navController: NavController) {
     val currentRoute = navBackStackEntry.value?.destination?.route
 
     BottomNavigation(
-        backgroundColor = MaterialTheme.colorScheme.onBackground,
-        contentColor = Color.White
+        backgroundColor = MaterialTheme.colorScheme.outline,
+        contentColor = Color.White,
+        modifier = Modifier.padding(bottom = 20.dp)
     ) {
         items.forEach { item ->
             BottomNavigationItem(

@@ -18,6 +18,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,10 +29,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.example.movieapp.model.Movie
-import com.google.gson.Gson
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -43,22 +46,42 @@ fun MovieScreen(navController: NavHostController, viewModel: MovieViewModel = vi
     LaunchedEffect(true) {
         viewModel.fetchMovieList(apiKey)
     }
+
     val error by viewModel.error.observeAsState()
     val movieList by viewModel.movieList.observeAsState()
 
-    if (error != null) {
-        ErrorView(errorMessage = error)
-    } else if (movieList != null) {
-        MovieGridView(movies = movieList!!, navController = navController, viewModel = viewModel)
-    } else {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredMovies = movieList?.filter { movie ->
+        movie.title?.contains(searchQuery, ignoreCase = true) == true
+    } ?: emptyList()
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            label = { Text("Search for a movie") },
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        )
+
+        if (error != null) {
+            ErrorView(errorMessage = error)
+        } else if (movieList != null) {
+            MovieGridView(movies = filteredMovies, navController = navController, viewModel = viewModel)
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
         }
     }
 }
+
 
 @Composable
 fun MovieGridView(movies: List<Movie>, viewModel: MovieViewModel, navController: NavHostController) {
@@ -88,7 +111,6 @@ fun MovieCard(movie: Movie, viewModel: MovieViewModel, navController: NavHostCon
                         "${URLEncoder.encode(movie.poster_path ?: "", StandardCharsets.UTF_8.name())}/" +
                         "${movie.popularity}"
             )
-
             }
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -122,7 +144,6 @@ fun MovieCard(movie: Movie, viewModel: MovieViewModel, navController: NavHostCon
         }
     }
 }
-
 
 @Composable
 fun ErrorView(errorMessage: String?) {

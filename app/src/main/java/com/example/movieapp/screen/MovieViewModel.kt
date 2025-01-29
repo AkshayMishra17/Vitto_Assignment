@@ -19,7 +19,7 @@ class MovieViewModel : ViewModel() {
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> get() = _error
 
-    private val _favorites = MutableLiveData<MutableSet<String>>(mutableSetOf()) // Use poster_path as unique identifier
+    private val _favorites = MutableLiveData<MutableSet<String>>(mutableSetOf())
     val favorites: LiveData<MutableSet<String>> get() = _favorites
 
     fun fetchMovieList(apiKey: String) {
@@ -45,5 +45,7 @@ class MovieViewModel : ViewModel() {
             currentFavorites.add(posterPath)
         }
         _favorites.value = currentFavorites
+
+        println("Updated favorites: ${_favorites.value}")
     }
 }
