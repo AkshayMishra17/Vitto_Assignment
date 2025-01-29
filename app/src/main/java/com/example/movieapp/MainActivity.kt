@@ -10,6 +10,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.movieapp.nav.MovieAppNav
+import com.example.movieapp.screen.MovieScreen
 import com.example.movieapp.ui.theme.MovieAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,18 +22,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             MovieAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) {
-               MovieScreen()
+               MovieAppNav()
                 }
             }
         }
     }
 }
 
-@Composable
-@Preview(showBackground = true)
-fun DefaultPreview() {
-    MovieAppTheme {
-        MovieScreen()
-    }
-}
 

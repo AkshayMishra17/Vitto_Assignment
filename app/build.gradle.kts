@@ -50,6 +50,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.material)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.coil.compose.v222)
     implementation(libs.coil.kt.coil.compose)
     implementation(libs.retrofit)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
