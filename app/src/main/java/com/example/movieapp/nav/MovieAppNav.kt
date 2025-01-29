@@ -1,5 +1,6 @@
 package com.example.movieapp.nav
 
+import MovieDetailScreen
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -8,7 +9,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.movieapp.screen.FavoriteMoviesScreen
-import com.example.movieapp.screen.MovieDetailScreen
 import com.example.movieapp.screen.MovieScreen
 import com.example.movieapp.screen.MovieViewModel
 import java.net.URLDecoder

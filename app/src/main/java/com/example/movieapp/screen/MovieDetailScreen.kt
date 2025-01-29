@@ -1,46 +1,29 @@
-package com.example.movieapp.screen
-
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-
-//@Composable
-//fun MovieDetailScreen(movieId: String?) {
-//    Box(
-//        modifier = Modifier.fillMaxSize(),
-//        contentAlignment = Alignment.Center
-//    ) {
-//        Text(text = "Movie Details for: $movieId")
-////        Text(text = "Movie Details for: ")
-//    }
-//}
-
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.example.movieapp.model.Movie
-import com.google.gson.Gson
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 
 @SuppressLint("DefaultLocale")
 @Composable
-fun MovieDetailScreen(title: String?, releaseDate: String?, overview: String?, posterPath: String?,popularity:Float) {
+fun MovieDetailScreen(title: String?, releaseDate: String?, overview: String?, posterPath: String?, popularity: Float) {
+    // Scrollable column
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(30.dp),
+            .padding(30.dp)
+            .verticalScroll(scrollState), // Make the column scrollable
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         posterPath?.let {

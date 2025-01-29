@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
+import com.example.movieapp.db.MovieEntity
 import com.example.movieapp.model.Movie
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -52,7 +53,15 @@ fun MovieScreen(navController: NavHostController, viewModel: MovieViewModel = vi
 
     var searchQuery by remember { mutableStateOf("") }
 
-    val filteredMovies = movieList?.filter { movie ->
+    val filteredMovies = movieList?.map { entity ->
+        Movie(
+            title = entity.title,
+            release_date = entity.release_date,
+            overview = entity.overview,
+            poster_path = entity.poster_path,
+            popularity = entity.popularity
+        )
+    }?.filter { movie ->
         movie.title?.contains(searchQuery, ignoreCase = true) == true
     } ?: emptyList()
 
@@ -97,7 +106,8 @@ fun MovieGridView(movies: List<Movie>, viewModel: MovieViewModel, navController:
 
 @Composable
 fun MovieCard(movie: Movie, viewModel: MovieViewModel, navController: NavHostController) {
-    val isFavorite = viewModel.favorites.observeAsState().value?.contains(movie.poster_path) ?: false
+    val favoriteMovies by viewModel.favoriteMovies.observeAsState(emptyList())
+    val isFavorite = favoriteMovies.any { it.poster_path == movie.poster_path }
 
     Box(
         modifier = Modifier
@@ -132,13 +142,24 @@ fun MovieCard(movie: Movie, viewModel: MovieViewModel, navController: NavHostCon
             )
 
             IconButton(
-                onClick = { viewModel.toggleFavorite(movie.poster_path ?: "") },
+                onClick = {
+                    viewModel.toggleFavorite(
+                        MovieEntity(
+                            title = movie.title,
+                            release_date = movie.release_date,
+                            overview = movie.overview,
+                            poster_path = movie.poster_path.toString(),
+                            popularity = movie.popularity,
+                            isFavorite = !isFavorite,
+                        )
+                    )
+                },
                 modifier = Modifier.padding(top = 8.dp)
             ) {
                 Icon(
                     imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                    tint = if (isFavorite) Color.Red else Color.Gray
+                    tint = if (!isFavorite) Color.Red else Color.Gray
                 )
             }
         }

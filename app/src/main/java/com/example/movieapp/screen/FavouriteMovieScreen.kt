@@ -5,30 +5,38 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.example.movieapp.model.Movie
 
 @Composable
 fun FavoriteMoviesScreen(navController: NavHostController, viewModel: MovieViewModel) {
-    val favorites = viewModel.favorites.observeAsState().value ?: mutableSetOf()
-    val allMovies = viewModel.movieList.observeAsState().value ?: emptyList()
+    val favoriteMovies = viewModel.favoriteMovies.observeAsState(emptyList()).value
+    val allMovies = viewModel.movieList.observeAsState().value?.map { entity ->
+        Movie(
+            title = entity.title,
+            release_date = entity.release_date,
+            overview = entity.overview,
+            poster_path = entity.poster_path,
+            popularity = entity.popularity
+        )
+    } ?: emptyList()
 
-    LaunchedEffect(favorites) {
-        println("Favorites updated: $favorites")
-    }
-
-    val favoriteMovies = allMovies.filter { movie ->
-        favorites.contains(movie.poster_path)
+    val filteredFavorites = allMovies.filter { movie ->
+        favoriteMovies.any { it.poster_path == movie.poster_path }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        if (favoriteMovies.isEmpty()) {
-            Text("No favorite movies added yet.", modifier = Modifier.fillMaxSize(), style = MaterialTheme.typography.bodyMedium)
+        if (filteredFavorites.isEmpty()) {
+            Text(
+                "No favorite movies added yet.",
+                modifier = Modifier.fillMaxSize(),
+                style = MaterialTheme.typography.bodyMedium
+            )
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                itemsIndexed(favoriteMovies) { _, movie ->
+                itemsIndexed(filteredFavorites) { _, movie ->
                     MovieCard(movie = movie, viewModel = viewModel, navController = navController)
                 }
             }
