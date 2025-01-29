@@ -1,25 +1,28 @@
-package com.example.movieapp
+package com.example.movieapp.network
 
+import com.example.movieapp.model.Movie
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 
+
 interface ApiService {
-    @GET("search/searchMovie")
+    @GET("movie/popular")
+    suspend fun getMovieList(
+        @Query("api_key") apiKey: String
+    ): MovieResponse
+
+    @GET("search/movie")
     suspend fun searchMovie(
         @Query("query") query: String,
         @Query("api_key") apiKey: String
-    ):MovieResponse
-    @GET("movie/{movie_id}")
-    suspend fun getMovieDetails(@Path("movie_id") movieId: String, @Query("api_key") apiKey: String): Movie
+    ): MovieResponse
 
     data class MovieResponse(
         val results: List<Movie>
     )
 }
-
 object RetrofitInstance {
     val api: ApiService by lazy {
         Retrofit.Builder()
