@@ -10,7 +10,8 @@ import retrofit2.http.Query
 interface ApiService {
     @GET("movie/popular")
     suspend fun getMovieList(
-        @Query("api_key") apiKey: String
+        @Query("api_key") apiKey: String,
+        @Query("page") page: Int  // Add page parameter for pagination
     ): MovieResponse
 
     @GET("search/movie")
@@ -20,9 +21,12 @@ interface ApiService {
     ): MovieResponse
 
     data class MovieResponse(
-        val results: List<Movie>
+        val results: List<Movie>,
+        val page: Int,
+        val total_pages: Int
     )
 }
+
 object RetrofitInstance {
     val api: ApiService by lazy {
         Retrofit.Builder()
