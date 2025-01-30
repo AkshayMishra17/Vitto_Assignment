@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -32,6 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.navigation.NavHostController
 import coil.compose.rememberImagePainter
 import com.example.movieapp.db.MovieEntity
@@ -45,7 +47,7 @@ fun MovieScreen(navController: NavHostController, viewModel: MovieViewModel = vi
     val apiKey = "08bedb166ad78bd5457f4f73e7302b74"
 
     LaunchedEffect(true) {
-        viewModel.fetchMovieList(apiKey)
+        viewModel.fetchMovieList(apiKey, reset = true)
     }
 
     val error by viewModel.error.observeAsState()
@@ -53,16 +55,8 @@ fun MovieScreen(navController: NavHostController, viewModel: MovieViewModel = vi
 
     var searchQuery by remember { mutableStateOf("") }
 
-    val filteredMovies = movieList?.map { entity ->
-        Movie(
-            title = entity.title,
-            release_date = entity.release_date,
-            overview = entity.overview,
-            poster_path = entity.poster_path,
-            popularity = entity.popularity
-        )
-    }?.filter { movie ->
-        movie.title?.contains(searchQuery, ignoreCase = true) == true
+    val filteredMovies = movieList?.filter { movie ->
+        movie.title.contains(searchQuery, ignoreCase = true)
     } ?: emptyList()
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -79,24 +73,32 @@ fun MovieScreen(navController: NavHostController, viewModel: MovieViewModel = vi
         if (error != null) {
             ErrorView(errorMessage = error)
         } else if (movieList != null) {
-            MovieGridView(movies = filteredMovies, navController = navController, viewModel = viewModel)
+            MovieGridView(movies = filteredMovies, viewModel = viewModel, navController = navController, apiKey)
         } else {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
     }
 }
 
-
 @Composable
-fun MovieGridView(movies: List<Movie>, viewModel: MovieViewModel, navController: NavHostController) {
+fun MovieGridView(movies: List<MovieEntity>, viewModel: MovieViewModel, navController: NavHostController, apiKey: String) {
+    val listState = rememberLazyGridState()
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .collect { lastIndex ->
+                if (lastIndex != null && lastIndex >= movies.size - 2) {
+                    viewModel.fetchMovieList(apiKey)
+                }
+            }
+    }
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(150.dp),
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        state = listState
     ) {
         items(movies) { movie ->
             MovieCard(movie = movie, viewModel = viewModel, navController = navController)
@@ -105,7 +107,7 @@ fun MovieGridView(movies: List<Movie>, viewModel: MovieViewModel, navController:
 }
 
 @Composable
-fun MovieCard(movie: Movie, viewModel: MovieViewModel, navController: NavHostController) {
+fun MovieCard(movie: MovieEntity, viewModel: MovieViewModel, navController: NavHostController) {
     val favoriteMovies by viewModel.favoriteMovies.observeAsState(emptyList())
     val isFavorite = favoriteMovies.any { it.poster_path == movie.poster_path }
 

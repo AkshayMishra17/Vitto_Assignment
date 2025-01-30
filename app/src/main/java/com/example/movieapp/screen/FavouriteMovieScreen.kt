@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.example.movieapp.db.MovieEntity
 import com.example.movieapp.model.Movie
 
 @Composable
@@ -23,8 +24,19 @@ fun FavoriteMoviesScreen(navController: NavHostController, viewModel: MovieViewM
         )
     } ?: emptyList()
 
-    val filteredFavorites = allMovies.filter { movie ->
-        favoriteMovies.any { it.poster_path == movie.poster_path }
+    val filteredFavorites = allMovies.map { movie ->
+        movie.poster_path?.let {
+            MovieEntity(
+                title = movie.title,
+                release_date = movie.release_date,
+                overview = movie.overview,
+                poster_path = it,
+                popularity = movie.popularity,
+                isFavorite = true // or false, depending on your needs
+            )
+        }
+    }.filter { movie ->
+        favoriteMovies.any { it.poster_path == movie?.poster_path }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -37,7 +49,9 @@ fun FavoriteMoviesScreen(navController: NavHostController, viewModel: MovieViewM
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 itemsIndexed(filteredFavorites) { _, movie ->
-                    MovieCard(movie = movie, viewModel = viewModel, navController = navController)
+                    if (movie != null) {
+                        MovieCard(movie = movie, viewModel = viewModel, navController = navController)
+                    }
                 }
             }
         }
