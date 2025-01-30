@@ -11,8 +11,8 @@ class MovieRepository(private val apiService: ApiService) {
     fun getPopularMovies(apiKey: String): Flow<PagingData<Movie>> {
         return Pager(
             config = PagingConfig(
-                pageSize = 15,  // Fetch 15 movies per page
-                prefetchDistance = 2,  // Prefetch next 2 pages in advance
+                pageSize = 15,
+                prefetchDistance = 2,
                 enablePlaceholders = false
             ),
             pagingSourceFactory = { MoviePagingSource(apiService, apiKey) }

@@ -17,13 +17,12 @@ import com.example.movieapp.model.Movie
 @SuppressLint("DefaultLocale")
 @Composable
 fun MovieDetailScreen(title: String?, releaseDate: String?, overview: String?, posterPath: String?, popularity: Float) {
-    // Scrollable column
     val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .padding(30.dp)
-            .verticalScroll(scrollState), // Make the column scrollable
+            .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         posterPath?.let {
