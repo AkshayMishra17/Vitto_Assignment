@@ -32,7 +32,7 @@ fun FavoriteMoviesScreen(navController: NavHostController, viewModel: MovieViewM
                 overview = movie.overview,
                 poster_path = it,
                 popularity = movie.popularity,
-                isFavorite = true // or false, depending on your needs
+                isFavorite = true
             )
         }
     }.filter { movie ->

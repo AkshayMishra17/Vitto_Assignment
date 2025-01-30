@@ -11,7 +11,7 @@ interface ApiService {
     @GET("movie/popular")
     suspend fun getMovieList(
         @Query("api_key") apiKey: String,
-        @Query("page") page: Int  // Add page parameter for pagination
+        @Query("page") page: Int
     ): MovieResponse
 
     @GET("search/movie")

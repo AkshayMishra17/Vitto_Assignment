@@ -16,7 +16,7 @@ interface MovieDao {
     suspend fun getAllMovies(): List<MovieEntity>
 
 
-    @Query("SELECT * FROM movies WHERE title = :title LIMIT 1")  // Ensure it returns only one movie
+    @Query("SELECT * FROM movies WHERE title = :title LIMIT 1")
     suspend fun getMovieByTitle(title: String): MovieEntity?
 
     @Query("SELECT * FROM movies")
