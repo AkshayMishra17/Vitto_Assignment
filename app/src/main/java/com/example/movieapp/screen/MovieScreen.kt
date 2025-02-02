@@ -109,7 +109,8 @@ fun MovieGridView(movies: List<MovieEntity>, viewModel: MovieViewModel, navContr
 @Composable
 fun MovieCard(movie: MovieEntity, viewModel: MovieViewModel, navController: NavHostController) {
     val favoriteMovies by viewModel.favoriteMovies.observeAsState(emptyList())
-    val isFavorite = favoriteMovies.any { it.poster_path == movie.poster_path }
+    val isFavorite = favoriteMovies.any { it.title == movie.title }
+
 
     Box(
         modifier = Modifier
@@ -161,7 +162,7 @@ fun MovieCard(movie: MovieEntity, viewModel: MovieViewModel, navController: NavH
                 Icon(
                     imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                    tint = if (!isFavorite) Color.Red else Color.Gray
+                    tint = if (!isFavorite) Color.Gray else Color.Red
                 )
             }
         }

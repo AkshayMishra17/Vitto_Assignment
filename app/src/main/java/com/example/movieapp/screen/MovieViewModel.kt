@@ -32,12 +32,7 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
         isLoading = true
         viewModelScope.launch {
             try {
-                if (reset) {
-                    currentPage = 1
-                    loadedMovies.clear()
-                }
-
-                val response = api.getMovieList(apiKey, page = currentPage) // Include page number
+                val response = api.getMovieList(apiKey, page = currentPage)
                 val movieEntities = response.results.map { movie ->
                     MovieEntity(
                         title = movie.title,
@@ -50,10 +45,12 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 loadedMovies.addAll(movieEntities)
-                movieDao.insertMovie(movieEntities) // Store in local DB
-                _movieList.postValue(loadedMovies)
+                movieDao.insertMoviesPreserveFavorites(movieEntities)
 
-                currentPage++ // Increment page after successful load
+                val updatedMovies = movieDao.getAllMovies()
+                _movieList.postValue(updatedMovies)
+
+                currentPage++
 
             } catch (e: Exception) {
                 val cachedMovies = movieDao.getAllMovies()
@@ -67,13 +64,18 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleFavorite(movie: MovieEntity) {
         viewModelScope.launch {
-            val existingMovie = movieDao.getMovieByTitle(movie.title)
-
-            if (existingMovie != null) {
-                movieDao.deleteMovie(existingMovie)
-            } else {
-                val movieWithFavoriteStatus = movie.copy(isFavorite = true)
-                movieDao.insertMovie(listOf(movieWithFavoriteStatus))
+            try {
+                val existingMovie = movieDao.getMovieByTitle(movie.title)
+                if (existingMovie != null) {
+                    val updatedMovie = existingMovie.copy(isFavorite = !existingMovie.isFavorite)
+                    movieDao.updateMovie(updatedMovie)
+                } else {
+                    // If movie doesn't exist, add it as a favorite
+                    val newMovie = movie.copy(isFavorite = true)
+                    movieDao.insertMovie(listOf(newMovie))
+                }
+            } catch (e: Exception) {
+                _error.postValue("Error updating favorite: ${e.message}")
             }
         }
     }
